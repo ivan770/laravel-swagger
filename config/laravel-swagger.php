@@ -65,14 +65,38 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Ignore methods
+    | Base responses
     |--------------------------------------------------------------------------
     |
-    | Methods in the following array will be ignored in the paths array
+    | Base responses are attached to every path
     |
     */
 
     'baseResponses' => [
         200 => ['description' => 'OK']
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Modified responses
+    |--------------------------------------------------------------------------
+    |
+    | Modified responses are attached to every POST, PUT, PATCH, DELETE path
+    |
+    */
+
+    'modResponses' => [
+        201 => ['description' => 'OK']
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | Guess tag by URL
+    |--------------------------------------------------------------------------
+    |
+    | Should package use path prefix as tag
+    |
+    */
+
+    'guess_tag' => false,
 ];

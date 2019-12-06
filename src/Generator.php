@@ -4,6 +4,7 @@ namespace Mtrajano\LaravelSwagger;
 
 use ReflectionMethod;
 use Illuminate\Support\Str;
+use Illuminate\Support\Pluralizer;
 use Illuminate\Routing\Route;
 use Illuminate\Foundation\Http\FormRequest;
 use phpDocumentor\Reflection\DocBlockFactory;
@@ -143,11 +144,21 @@ class Generator
         }
     }
 
+    protected function getRouteModelName()
+    {
+        if($this->config['guess_tag']) {
+            $str = Str::replaceFirst($this->routeFilter, '', $this->uri);
+            return Pluralizer::singular(explode('/', $str)[1]);
+        }
+
+        return 'Generic';
+    }
+
     protected function getModelName()
     {
         $match = [];
         preg_match('/{(\w*)}/', $this->uri, $match);
-        return ucfirst($match[1] ?? 'Generic');
+        return ucfirst($match[1] ?? $this->getRouteModelName());
     }
 
     protected function addTagParameters()
@@ -191,12 +202,27 @@ class Generator
             $responses[$statusCode] = ['description' => $split[1]];
         }
 
-        return $responses + $this->config['baseResponses'];
+        $responses = $responses + $this->config['baseResponses'];
+        if($this->modResponsable()) {
+            $responses = $responses + $this->config['modResponses'];
+        }
+
+        return $responses;
     }
 
     protected function getDefaultValues()
     {
         return [false, "", "", $this->config['baseResponses']];
+    }
+
+    protected function modResponsable()
+    {
+        return in_array($this->method, [
+            'post',
+            'put',
+            'patch',
+            'delete',
+        ]);
     }
 
     private function getActionClassInstance(string $action)
