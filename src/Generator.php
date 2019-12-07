@@ -2,12 +2,16 @@
 
 namespace Mtrajano\LaravelSwagger;
 
+use ReflectionClass;
 use ReflectionMethod;
 use Illuminate\Support\Str;
 use Illuminate\Support\Pluralizer;
 use Illuminate\Routing\Route;
 use Illuminate\Foundation\Http\FormRequest;
 use phpDocumentor\Reflection\DocBlockFactory;
+use phpDocumentor\Reflection\Types\Compound;
+use phpDocumentor\Reflection\Types;
+use phpDocumentor\Reflection\Type;
 
 class Generator
 {
@@ -24,6 +28,19 @@ class Generator
     protected $method;
 
     protected $action;
+
+    protected const TYPES = [
+        Types\Array_::class => 'array',
+        Types\Boolean::class => 'boolean',
+        Types\Callable_::class => 'object',
+        Types\Collection::class => 'array',
+        Types\Float_::class => 'number',
+        Types\Integer::class => 'number',
+        Types\Mixed_::class => 'object',
+        Types\Null_::class => 'object',
+        Types\String_::class => 'string',
+        Types\Object_::class => 'object',
+    ];
 
     public function __construct($config, $routeFilter = null)
     {
@@ -124,6 +141,7 @@ class Generator
         ];
 
         $this->addTagParameters();
+        $this->addModel($this->getModelName());
         $this->addActionParameters();
     }
 
@@ -159,6 +177,46 @@ class Generator
         $match = [];
         preg_match('/{(\w*)}/', $this->uri, $match);
         return ucfirst($match[1] ?? $this->getRouteModelName());
+    }
+
+    protected function determineType(Type $type)
+    {
+        return self::TYPES[get_class($type)];
+    }
+
+    protected function getModelFields(array $rawFields)
+    {
+        $fields = [];
+        foreach($rawFields as $field) {
+            $name = $field->getVariableName();
+            $type = $field->getType();
+            if($type instanceof Compound) {
+                $fields[$name] = ['type' => $this->determineType($type->get(0))];
+                continue;
+            }
+            $fields[$name] = ['type' => $this->determineType($type)];
+        }
+
+        return $fields;
+    }
+
+    protected function parseModelComment(string $tag, string $docBlock)
+    {
+        $parsedComment = $this->docParser->create($docBlock);
+        return [
+            'title' => $tag,
+            'description' => "{$tag} model",
+            'properties' => $this->getModelFields($parsedComment->getTagsByName('property')),
+        ];
+    }
+
+    protected function addModel(string $tag)
+    {
+        if(class_exists("{$this->config['model_namespace']}{$tag}")) {
+            $model = new ReflectionClass("{$this->config['model_namespace']}{$tag}");
+            $params = $this->parseModelComment($tag, $model->getDocComment());
+            $this->docs['definitions'][$tag] = $params;
+        }
     }
 
     protected function addTagParameters()
