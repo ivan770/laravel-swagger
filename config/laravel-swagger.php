@@ -109,5 +109,5 @@ return [
     |
     */
 
-    'model_namespace' => 'App\\Models\\'
+    'model_namespace' => 'App\\Models\\',
 ];

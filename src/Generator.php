@@ -202,6 +202,13 @@ class Generator
 
     protected function parseModelComment(string $tag, string $docBlock)
     {
+        if(empty($docBlock)) {
+            return [
+                'title' => $tag,
+                'description' => "{$tag} model",
+            ];
+        }
+
         $parsedComment = $this->docParser->create($docBlock);
         return [
             'title' => $tag,
