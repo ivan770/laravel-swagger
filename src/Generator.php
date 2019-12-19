@@ -29,6 +29,8 @@ class Generator
 
     protected $action;
 
+    protected $preset;
+
     protected const TYPES = [
         Types\Array_::class => 'array',
         Types\Boolean::class => 'boolean',
@@ -42,10 +44,11 @@ class Generator
         Types\Object_::class => 'object',
     ];
 
-    public function __construct($config, $routeFilter = null)
+    public function __construct($config, $routeFilter = null, $preset = 'default')
     {
         $this->config = $config;
         $this->routeFilter = $routeFilter;
+        $this->preset = $preset;
         $this->docParser = DocBlockFactory::createInstance();
     }
 
@@ -62,6 +65,10 @@ class Generator
             }
 
             $this->action = $route->getAction()['uses'];
+            if(in_array($this->action, $this->config['presets'][$this->preset]['ignored_controllers'])) {
+                continue;
+            }
+
             $methods = $route->methods();
 
             if (!isset($this->docs['paths'][$this->uri])) {

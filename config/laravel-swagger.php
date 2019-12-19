@@ -110,4 +110,22 @@ return [
     */
 
     'model_namespace' => 'App\\Models\\',
+
+    /*
+    |--------------------------------------------------------------------------
+    | Generator presets
+    |--------------------------------------------------------------------------
+    |
+    | Configure different options based on passed preset.
+    |
+    */
+
+    'presets' => [
+        'default' => [
+            'generate_models' => true,
+            'ignored_controllers' => [
+                //
+            ],
+        ]
+    ]
 ];
