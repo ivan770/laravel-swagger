@@ -65,7 +65,7 @@ class Generator
             }
 
             $this->action = $route->getAction()['uses'];
-            if(in_array($this->action, $this->config['presets'][$this->preset]['ignored_controllers'])) {
+            if(is_string($this->action) && in_array(Str::parseCallback($this->action)[0], $this->config['presets'][$this->preset]['ignored_controllers'])) {
                 continue;
             }
 
