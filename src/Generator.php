@@ -226,7 +226,7 @@ class Generator
 
     protected function addModel(string $tag)
     {
-        if(class_exists("{$this->config['model_namespace']}{$tag}")) {
+        if($this->config['presets'][$this->preset]['generate_models'] && class_exists("{$this->config['model_namespace']}{$tag}")) {
             $model = new ReflectionClass("{$this->config['model_namespace']}{$tag}");
             $params = $this->parseModelComment($tag, $model->getDocComment());
             $this->docs['definitions'][$tag] = $params;
