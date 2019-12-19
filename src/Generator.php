@@ -148,7 +148,9 @@ class Generator
         ];
 
         $this->addTagParameters();
-        $this->addModel($this->getModelName());
+        if($this->config['presets'][$this->preset]['generate_models']) {
+            $this->addModel($this->getModelName());
+        }
         $this->addActionParameters();
     }
 
@@ -226,7 +228,8 @@ class Generator
 
     protected function addModel(string $tag)
     {
-        if($this->config['presets'][$this->preset]['generate_models'] && class_exists("{$this->config['model_namespace']}{$tag}")) {
+        if(class_exists("{$this->config['model_namespace']}{$tag}")
+            && !in_array("{$this->config['model_namespace']}{$tag}", $this->config['presets'][$this->preset]['ignored_models'])) {
             $model = new ReflectionClass("{$this->config['model_namespace']}{$tag}");
             $params = $this->parseModelComment($tag, $model->getDocComment());
             $this->docs['definitions'][$tag] = $params;

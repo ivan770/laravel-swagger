@@ -126,6 +126,9 @@ return [
             'ignored_controllers' => [
                 //
             ],
-        ]
-    ]
+            'ignored_models' => [
+                //
+            ],
+        ],
+    ],
 ];
