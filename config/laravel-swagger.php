@@ -129,6 +129,9 @@ return [
             'ignored_models' => [
                 //
             ],
+            'ignored_actions' => [
+                //
+            ],
         ],
     ],
 ];
